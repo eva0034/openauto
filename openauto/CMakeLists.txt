@@ -115,7 +115,6 @@ target_link_libraries(openauto PUBLIC
         Threads::Threads
         ${Boost_LIBRARIES}
         aasdk
-        h264
         rtaudio
         Qt5::Bluetooth
         Qt5::MultimediaWidgets

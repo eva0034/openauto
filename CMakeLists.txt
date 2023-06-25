@@ -47,7 +47,6 @@ find_package(Protobuf REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(rtaudio REQUIRED)
 find_package(aasdk REQUIRED)
-find_package(h264 REQUIRED)
 find_package(Threads)
 
 include(${base_directory}/cmake_modules/gitversion.cmake)
