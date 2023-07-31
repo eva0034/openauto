@@ -18,35 +18,27 @@
 
 #include "openauto/Projection/DummyBluetoothDevice.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-void DummyBluetoothDevice::stop()
-{
+void DummyBluetoothDevice::stop() {}
 
+bool DummyBluetoothDevice::isPaired(const std::string&) const {
+  return false;
 }
 
-bool DummyBluetoothDevice::isPaired(const std::string&) const
-{
-    return false;
+void DummyBluetoothDevice::pair(const std::string&,
+                                PairingPromise::Pointer promise) {
+  promise->reject();
 }
 
-void DummyBluetoothDevice::pair(const std::string&, PairingPromise::Pointer promise)
-{
-    promise->reject();
+std::string DummyBluetoothDevice::getLocalAddress() const {
+  return "";
 }
 
-std::string DummyBluetoothDevice::getLocalAddress() const
-{
-    return "";
+bool DummyBluetoothDevice::isAvailable() const {
+  return false;
 }
 
-bool DummyBluetoothDevice::isAvailable() const
-{
-    return false;
-}
-
-}
-}
+}  // namespace projection
+}  // namespace openauto

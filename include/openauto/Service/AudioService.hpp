@@ -18,42 +18,54 @@
 
 #pragma once
 
+#include "IService.hpp"
 #include "aasdk/Channel/AV/IAudioServiceChannel.hpp"
 #include "aasdk/Channel/AV/IAudioServiceChannelEventHandler.hpp"
 #include "openauto/Projection/IAudioOutput.hpp"
-#include "IService.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class AudioService: public aasdk::channel::av::IAudioServiceChannelEventHandler, public IService, public std::enable_shared_from_this<AudioService>
-{
-public:
-    typedef std::shared_ptr<AudioService> Pointer;
+class AudioService
+    : public aasdk::channel::av::IAudioServiceChannelEventHandler,
+      public IService,
+      public std::enable_shared_from_this<AudioService> {
+ public:
+  typedef std::shared_ptr<AudioService> Pointer;
 
-    AudioService(boost::asio::io_service& ioService, aasdk::channel::av::IAudioServiceChannel::Pointer channel, projection::IAudioOutput::Pointer audioOutput);
+  AudioService(boost::asio::io_service& ioService,
+               aasdk::channel::av::IAudioServiceChannel::Pointer channel,
+               projection::IAudioOutput::Pointer audioOutput);
 
-    void start() override;
-    void stop() override;
-    void fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
-    void onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request) override;
-    void onAVChannelSetupRequest(const aasdk::proto::messages::AVChannelSetupRequest& request) override;
-    void onAVChannelStartIndication(const aasdk::proto::messages::AVChannelStartIndication& indication) override;
-    void onAVChannelStopIndication(const aasdk::proto::messages::AVChannelStopIndication& indication) override;
-    void onAVMediaWithTimestampIndication(aasdk::messenger::Timestamp::ValueType timestamp, const aasdk::common::DataConstBuffer& buffer) override;
-    void onAVMediaIndication(const aasdk::common::DataConstBuffer& buffer) override;
-    void onChannelError(const aasdk::error::Error& e) override;
+  void start() override;
+  void stop() override;
+  void fillFeatures(
+      aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
+  void onChannelOpenRequest(
+      const aasdk::proto::messages::ChannelOpenRequest& request) override;
+  void onAVChannelSetupRequest(
+      const aasdk::proto::messages::AVChannelSetupRequest& request) override;
+  void onAVChannelStartIndication(
+      const aasdk::proto::messages::AVChannelStartIndication& indication)
+      override;
+  void onAVChannelStopIndication(
+      const aasdk::proto::messages::AVChannelStopIndication& indication)
+      override;
+  void onAVMediaWithTimestampIndication(
+      aasdk::messenger::Timestamp::ValueType timestamp,
+      const aasdk::common::DataConstBuffer& buffer) override;
+  void onAVMediaIndication(
+      const aasdk::common::DataConstBuffer& buffer) override;
+  void onChannelError(const aasdk::error::Error& e) override;
 
-protected:
-    using std::enable_shared_from_this<AudioService>::shared_from_this;
+ protected:
+  using std::enable_shared_from_this<AudioService>::shared_from_this;
 
-    boost::asio::io_service::strand strand_;
-    aasdk::channel::av::IAudioServiceChannel::Pointer channel_;
-    projection::IAudioOutput::Pointer audioOutput_;
-    int32_t session_;
+  boost::asio::io_service::strand strand_;
+  aasdk::channel::av::IAudioServiceChannel::Pointer channel_;
+  projection::IAudioOutput::Pointer audioOutput_;
+  int32_t session_;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

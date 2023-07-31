@@ -19,33 +19,33 @@
 #pragma once
 
 #include <boost/asio.hpp>
-#include "aasdk/Transport/ITransport.hpp"
-#include "openauto/Configuration/IConfiguration.hpp"
 #include "IAndroidAutoEntityFactory.hpp"
 #include "IServiceFactory.hpp"
+#include "aasdk/Transport/ITransport.hpp"
+#include "openauto/Configuration/IConfiguration.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class AndroidAutoEntityFactory: public IAndroidAutoEntityFactory
-{
-public:
-    AndroidAutoEntityFactory(boost::asio::io_service& ioService,
-                             configuration::IConfiguration::Pointer configuration,
-                             IServiceFactory& serviceFactory);
+class AndroidAutoEntityFactory : public IAndroidAutoEntityFactory {
+ public:
+  AndroidAutoEntityFactory(boost::asio::io_service& ioService,
+                           configuration::IConfiguration::Pointer configuration,
+                           IServiceFactory& serviceFactory);
 
-    IAndroidAutoEntity::Pointer create(aasdk::usb::IAOAPDevice::Pointer aoapDevice) override;
-    IAndroidAutoEntity::Pointer create(aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint) override;
+  IAndroidAutoEntity::Pointer create(
+      aasdk::usb::IAOAPDevice::Pointer aoapDevice) override;
+  IAndroidAutoEntity::Pointer create(
+      aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint) override;
 
-private:
-    IAndroidAutoEntity::Pointer create(aasdk::transport::ITransport::Pointer transport);
+ private:
+  IAndroidAutoEntity::Pointer create(
+      aasdk::transport::ITransport::Pointer transport);
 
-    boost::asio::io_service& ioService_;
-    configuration::IConfiguration::Pointer configuration_;
-    IServiceFactory& serviceFactory_;
+  boost::asio::io_service& ioService_;
+  configuration::IConfiguration::Pointer configuration_;
+  IServiceFactory& serviceFactory_;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

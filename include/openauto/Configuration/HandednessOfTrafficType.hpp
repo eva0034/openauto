@@ -18,16 +18,10 @@
 
 #pragma once
 
-namespace openauto
-{
-namespace configuration
-{
+namespace openauto {
+namespace configuration {
 
-enum class HandednessOfTrafficType
-{
-    LEFT_HAND_DRIVE,
-    RIGHT_HAND_DRIVE
-};
+enum class HandednessOfTrafficType { LEFT_HAND_DRIVE, RIGHT_HAND_DRIVE };
 
 }
-}
+}  // namespace openauto

@@ -18,35 +18,42 @@
 
 #pragma once
 
-#include "aasdk/Channel/AV/MediaStatusServiceChannel.hpp"
 #include "IService.hpp"
+#include "aasdk/Channel/AV/MediaStatusServiceChannel.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 class IAndroidAutoInterface;
-class MediaStatusService: public aasdk::channel::av::IMediaStatusServiceChannelEventHandler, public IService, public std::enable_shared_from_this<MediaStatusService>
-{
-public:
-    MediaStatusService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, IAndroidAutoInterface* aa_interface);
-    void start() override;
-    void stop() override;
-    void fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
-    void onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request) override;
-    void onChannelError(const aasdk::error::Error& e) override;
-    void onMetadataUpdate(const aasdk::proto::messages::MediaInfoChannelMetadataData& metadata) override;
-    void onPlaybackUpdate(const aasdk::proto::messages::MediaInfoChannelPlaybackData& playback) override;
-    void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
+class MediaStatusService
+    : public aasdk::channel::av::IMediaStatusServiceChannelEventHandler,
+      public IService,
+      public std::enable_shared_from_this<MediaStatusService> {
+ public:
+  MediaStatusService(boost::asio::io_service& ioService,
+                     aasdk::messenger::IMessenger::Pointer messenger,
+                     IAndroidAutoInterface* aa_interface);
+  void start() override;
+  void stop() override;
+  void fillFeatures(
+      aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
+  void onChannelOpenRequest(
+      const aasdk::proto::messages::ChannelOpenRequest& request) override;
+  void onChannelError(const aasdk::error::Error& e) override;
+  void onMetadataUpdate(
+      const aasdk::proto::messages::MediaInfoChannelMetadataData& metadata)
+      override;
+  void onPlaybackUpdate(
+      const aasdk::proto::messages::MediaInfoChannelPlaybackData& playback)
+      override;
+  void setAndroidAutoInterface(IAndroidAutoInterface* aa_interface);
 
+ private:
+  using std::enable_shared_from_this<MediaStatusService>::shared_from_this;
 
-private:
-    using std::enable_shared_from_this<MediaStatusService>::shared_from_this;
-
-    boost::asio::io_service::strand strand_;
-    aasdk::channel::av::MediaStatusServiceChannel::Pointer channel_;
-    IAndroidAutoInterface* aa_interface_ = nullptr;
+  boost::asio::io_service::strand strand_;
+  aasdk::channel::av::MediaStatusServiceChannel::Pointer channel_;
+  IAndroidAutoInterface* aa_interface_ = nullptr;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

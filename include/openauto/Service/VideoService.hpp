@@ -19,44 +19,57 @@
 #pragma once
 
 #include <memory>
-#include "aasdk/Channel/AV/VideoServiceChannel.hpp"
-#include "aasdk/Channel/AV/IVideoServiceChannelEventHandler.hpp"
-#include "openauto/Projection/IVideoOutput.hpp"
 #include "IService.hpp"
+#include "aasdk/Channel/AV/IVideoServiceChannelEventHandler.hpp"
+#include "aasdk/Channel/AV/VideoServiceChannel.hpp"
+#include "openauto/Projection/IVideoOutput.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class VideoService: public aasdk::channel::av::IVideoServiceChannelEventHandler, public IService, public std::enable_shared_from_this<VideoService>
-{
-public:
-    typedef std::shared_ptr<VideoService> Pointer;
+class VideoService
+    : public aasdk::channel::av::IVideoServiceChannelEventHandler,
+      public IService,
+      public std::enable_shared_from_this<VideoService> {
+ public:
+  typedef std::shared_ptr<VideoService> Pointer;
 
-    VideoService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IVideoOutput::Pointer videoOutput);
+  VideoService(boost::asio::io_service& ioService,
+               aasdk::messenger::IMessenger::Pointer messenger,
+               projection::IVideoOutput::Pointer videoOutput);
 
-    void start() override;
-    void stop() override;
-    void fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
-    void onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request) override;
-    void onAVChannelSetupRequest(const aasdk::proto::messages::AVChannelSetupRequest& request) override;
-    void onAVChannelStartIndication(const aasdk::proto::messages::AVChannelStartIndication& indication) override;
-    void onAVChannelStopIndication(const aasdk::proto::messages::AVChannelStopIndication& indication) override;
-    void onAVMediaWithTimestampIndication(aasdk::messenger::Timestamp::ValueType timestamp, const aasdk::common::DataConstBuffer& buffer) override;
-    void onAVMediaIndication(const aasdk::common::DataConstBuffer& buffer) override;
-    void onVideoFocusRequest(const aasdk::proto::messages::VideoFocusRequest& request) override;
-    void onChannelError(const aasdk::error::Error& e) override;
+  void start() override;
+  void stop() override;
+  void fillFeatures(
+      aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
+  void onChannelOpenRequest(
+      const aasdk::proto::messages::ChannelOpenRequest& request) override;
+  void onAVChannelSetupRequest(
+      const aasdk::proto::messages::AVChannelSetupRequest& request) override;
+  void onAVChannelStartIndication(
+      const aasdk::proto::messages::AVChannelStartIndication& indication)
+      override;
+  void onAVChannelStopIndication(
+      const aasdk::proto::messages::AVChannelStopIndication& indication)
+      override;
+  void onAVMediaWithTimestampIndication(
+      aasdk::messenger::Timestamp::ValueType timestamp,
+      const aasdk::common::DataConstBuffer& buffer) override;
+  void onAVMediaIndication(
+      const aasdk::common::DataConstBuffer& buffer) override;
+  void onVideoFocusRequest(
+      const aasdk::proto::messages::VideoFocusRequest& request) override;
+  void onChannelError(const aasdk::error::Error& e) override;
 
-private:
-    using std::enable_shared_from_this<VideoService>::shared_from_this;
-    void sendVideoFocusIndication();
+ private:
+  using std::enable_shared_from_this<VideoService>::shared_from_this;
+  void sendVideoFocusIndication();
 
-    boost::asio::io_service::strand strand_;
-    aasdk::channel::av::VideoServiceChannel::Pointer channel_;
-    projection::IVideoOutput::Pointer videoOutput_;
-    int32_t session_;
+  boost::asio::io_service::strand strand_;
+  aasdk::channel::av::VideoServiceChannel::Pointer channel_;
+  projection::IVideoOutput::Pointer videoOutput_;
+  int32_t session_;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

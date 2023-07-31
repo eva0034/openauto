@@ -18,45 +18,52 @@
 
 #pragma once
 
-#include "aasdk_proto/ButtonCodeEnum.pb.h"
-#include "aasdk/Channel/Input/InputServiceChannel.hpp"
 #include "IService.hpp"
+#include "aasdk/Channel/Input/InputServiceChannel.hpp"
+#include "aasdk_proto/ButtonCodeEnum.pb.h"
 #include "openauto/Projection/IInputDevice.hpp"
 #include "openauto/Projection/IInputDeviceEventHandler.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class InputService:
-        public aasdk::channel::input::IInputServiceChannelEventHandler,
-        public IService,
-        public projection::IInputDeviceEventHandler,
-        public std::enable_shared_from_this<InputService>
-{
-public:
-    InputService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IInputDevice::Pointer inputDevice);
+class InputService
+    : public aasdk::channel::input::IInputServiceChannelEventHandler,
+      public IService,
+      public projection::IInputDeviceEventHandler,
+      public std::enable_shared_from_this<InputService> {
+ public:
+  InputService(boost::asio::io_service& ioService,
+               aasdk::messenger::IMessenger::Pointer messenger,
+               projection::IInputDevice::Pointer inputDevice);
 
-    void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode, projection::WheelDirection wheelDirection = projection::WheelDirection::NONE, projection::ButtonEventType buttonEventType = projection::ButtonEventType::NONE);
-    void start() override;
-    void stop() override;
-    void fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
-    void onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request) override;
-    void onBindingRequest(const aasdk::proto::messages::BindingRequest& request) override;
-    void onChannelError(const aasdk::error::Error& e) override;
-    void onButtonEvent(const projection::ButtonEvent& event) override;
-    void onTouchEvent(aasdk::proto::messages::InputEventIndication inputEventIndication) override;
-    void onMouseEvent(const projection::TouchEvent& event) override;
+  void sendButtonPress(aasdk::proto::enums::ButtonCode::Enum buttonCode,
+                       projection::WheelDirection wheelDirection =
+                           projection::WheelDirection::NONE,
+                       projection::ButtonEventType buttonEventType =
+                           projection::ButtonEventType::NONE);
+  void start() override;
+  void stop() override;
+  void fillFeatures(
+      aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
+  void onChannelOpenRequest(
+      const aasdk::proto::messages::ChannelOpenRequest& request) override;
+  void onBindingRequest(
+      const aasdk::proto::messages::BindingRequest& request) override;
+  void onChannelError(const aasdk::error::Error& e) override;
+  void onButtonEvent(const projection::ButtonEvent& event) override;
+  void onTouchEvent(aasdk::proto::messages::InputEventIndication
+                        inputEventIndication) override;
+  void onMouseEvent(const projection::TouchEvent& event) override;
 
-private:
-    using std::enable_shared_from_this<InputService>::shared_from_this;
+ private:
+  using std::enable_shared_from_this<InputService>::shared_from_this;
 
-    boost::asio::io_service::strand strand_;
-    aasdk::channel::input::InputServiceChannel::Pointer channel_;
-    projection::IInputDevice::Pointer inputDevice_;
-    bool serviceActive = false;
+  boost::asio::io_service::strand strand_;
+  aasdk::channel::input::InputServiceChannel::Pointer channel_;
+  projection::IInputDevice::Pointer inputDevice_;
+  bool serviceActive = false;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

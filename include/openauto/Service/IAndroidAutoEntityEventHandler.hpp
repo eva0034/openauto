@@ -20,17 +20,14 @@
 
 #include "aasdk/Error/Error.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class IAndroidAutoEntityEventHandler
-{
-public:
-    virtual ~IAndroidAutoEntityEventHandler() = default;
-    virtual void onAndroidAutoQuit() = 0;
+class IAndroidAutoEntityEventHandler {
+ public:
+  virtual ~IAndroidAutoEntityEventHandler() = default;
+  virtual void onAndroidAutoQuit() = 0;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

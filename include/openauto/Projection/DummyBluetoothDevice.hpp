@@ -20,20 +20,18 @@
 
 #include "IBluetoothDevice.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-class DummyBluetoothDevice: public IBluetoothDevice
-{
-public:
-    void stop() override;
-    bool isPaired(const std::string& address) const override;
-    void pair(const std::string& address, PairingPromise::Pointer promise) override;
-    std::string getLocalAddress() const override;
-    bool isAvailable() const override;
+class DummyBluetoothDevice : public IBluetoothDevice {
+ public:
+  void stop() override;
+  bool isPaired(const std::string& address) const override;
+  void pair(const std::string& address,
+            PairingPromise::Pointer promise) override;
+  std::string getLocalAddress() const override;
+  bool isAvailable() const override;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

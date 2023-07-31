@@ -18,17 +18,10 @@
 
 #pragma once
 
-namespace openauto
-{
-namespace configuration
-{
+namespace openauto {
+namespace configuration {
 
-enum class BluetoothAdapterType
-{
-    NONE,
-    LOCAL,
-    REMOTE
-};
+enum class BluetoothAdapterType { NONE, LOCAL, REMOTE };
 
 }
-}
+}  // namespace openauto

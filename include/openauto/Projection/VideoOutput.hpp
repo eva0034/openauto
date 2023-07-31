@@ -18,27 +18,25 @@
 
 #pragma once
 
-#include "openauto/Configuration/IConfiguration.hpp"
 #include "IVideoOutput.hpp"
+#include "openauto/Configuration/IConfiguration.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-class VideoOutput: public IVideoOutput
-{
-public:
-    VideoOutput(configuration::IConfiguration::Pointer configuration);
+class VideoOutput : public IVideoOutput {
+ public:
+  VideoOutput(configuration::IConfiguration::Pointer configuration);
 
-    aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const override;
-    aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const override;
-    size_t getScreenDPI() const override;
-    QRect getVideoMargins() const override;
+  aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const override;
+  aasdk::proto::enums::VideoResolution::Enum getVideoResolution()
+      const override;
+  size_t getScreenDPI() const override;
+  QRect getVideoMargins() const override;
 
-protected:
-    configuration::IConfiguration::Pointer configuration_;
+ protected:
+  configuration::IConfiguration::Pointer configuration_;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

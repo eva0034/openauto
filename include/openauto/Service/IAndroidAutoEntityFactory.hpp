@@ -18,23 +18,22 @@
 
 #pragma once
 
+#include "IAndroidAutoEntity.hpp"
 #include "aasdk/TCP/ITCPEndpoint.hpp"
 #include "aasdk/USB/IAOAPDevice.hpp"
-#include "IAndroidAutoEntity.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class IAndroidAutoEntityFactory
-{
-public:
-    virtual ~IAndroidAutoEntityFactory() = default;
+class IAndroidAutoEntityFactory {
+ public:
+  virtual ~IAndroidAutoEntityFactory() = default;
 
-    virtual IAndroidAutoEntity::Pointer create(aasdk::usb::IAOAPDevice::Pointer aoapDevice) = 0;
-    virtual IAndroidAutoEntity::Pointer create(aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint) = 0;
+  virtual IAndroidAutoEntity::Pointer create(
+      aasdk::usb::IAOAPDevice::Pointer aoapDevice) = 0;
+  virtual IAndroidAutoEntity::Pointer create(
+      aasdk::tcp::ITCPEndpoint::Pointer tcpEndpoint) = 0;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

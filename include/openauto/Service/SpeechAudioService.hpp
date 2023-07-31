@@ -18,19 +18,18 @@
 
 #pragma once
 
-#include "aasdk/Messenger/IMessenger.hpp"
 #include "AudioService.hpp"
+#include "aasdk/Messenger/IMessenger.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class SpeechAudioService: public AudioService
-{
-public:
-    SpeechAudioService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IAudioOutput::Pointer audioOutput);
+class SpeechAudioService : public AudioService {
+ public:
+  SpeechAudioService(boost::asio::io_service& ioService,
+                     aasdk::messenger::IMessenger::Pointer messenger,
+                     projection::IAudioOutput::Pointer audioOutput);
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

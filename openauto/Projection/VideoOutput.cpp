@@ -18,36 +18,28 @@
 
 #include "openauto/Projection/VideoOutput.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
 VideoOutput::VideoOutput(configuration::IConfiguration::Pointer configuration)
-    : configuration_(std::move(configuration))
-{
+    : configuration_(std::move(configuration)) {}
 
-}
-
-aasdk::proto::enums::VideoFPS::Enum VideoOutput::getVideoFPS() const
-{
-    return configuration_->getVideoFPS();
+aasdk::proto::enums::VideoFPS::Enum VideoOutput::getVideoFPS() const {
+  return configuration_->getVideoFPS();
 }
 
-aasdk::proto::enums::VideoResolution::Enum VideoOutput::getVideoResolution() const
-{
-    return configuration_->getVideoResolution();
+aasdk::proto::enums::VideoResolution::Enum VideoOutput::getVideoResolution()
+    const {
+  return configuration_->getVideoResolution();
 }
 
-size_t VideoOutput::getScreenDPI() const
-{
-    return configuration_->getScreenDPI();
+size_t VideoOutput::getScreenDPI() const {
+  return configuration_->getScreenDPI();
 }
 
-QRect VideoOutput::getVideoMargins() const
-{
-    return configuration_->getVideoMargins();
+QRect VideoOutput::getVideoMargins() const {
+  return configuration_->getVideoMargins();
 }
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

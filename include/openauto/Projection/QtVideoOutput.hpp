@@ -21,41 +21,40 @@
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <boost/noncopyable.hpp>
-#include "VideoOutput.hpp"
 #include "SequentialBuffer.hpp"
+#include "VideoOutput.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-class QtVideoOutput: public QObject, public VideoOutput, boost::noncopyable
-{
-    Q_OBJECT
+class QtVideoOutput : public QObject, public VideoOutput, boost::noncopyable {
+  Q_OBJECT
 
-public:
-    QtVideoOutput(configuration::IConfiguration::Pointer configuration, QWidget* videoContainer=nullptr);
-    bool open() override;
-    bool init() override;
-    void write(uint64_t timestamp, const aasdk::common::DataConstBuffer& buffer) override;
-    void stop() override;
-    void resize();
+ public:
+  QtVideoOutput(configuration::IConfiguration::Pointer configuration,
+                QWidget* videoContainer = nullptr);
+  bool open() override;
+  bool init() override;
+  void write(uint64_t timestamp,
+             const aasdk::common::DataConstBuffer& buffer) override;
+  void stop() override;
+  void resize();
 
-signals:
-    void startPlayback();
-    void stopPlayback();
+ signals:
+  void startPlayback();
+  void stopPlayback();
 
-protected slots:
-    void createVideoOutput();
-    void onStartPlayback();
-    void onStopPlayback();
+ protected slots:
+  void createVideoOutput();
+  void onStartPlayback();
+  void onStopPlayback();
 
-private:
-    SequentialBuffer videoBuffer_;
-    std::unique_ptr<QVideoWidget> videoWidget_;
-    std::unique_ptr<QMediaPlayer> mediaPlayer_;
-    QWidget* videoContainer_;
+ private:
+  SequentialBuffer videoBuffer_;
+  std::unique_ptr<QVideoWidget> videoWidget_;
+  std::unique_ptr<QMediaPlayer> mediaPlayer_;
+  QWidget* videoContainer_;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

@@ -18,76 +18,75 @@
 
 #pragma once
 
-#include <string>
 #include <QRect>
-#include "aasdk_proto/VideoFPSEnum.pb.h"
-#include "aasdk_proto/VideoResolutionEnum.pb.h"
-#include "aasdk_proto/ButtonCodeEnum.pb.h"
+#include <string>
+#include "AudioOutputBackendType.hpp"
 #include "BluetootAdapterType.hpp"
 #include "HandednessOfTrafficType.hpp"
-#include "AudioOutputBackendType.hpp"
+#include "aasdk_proto/ButtonCodeEnum.pb.h"
+#include "aasdk_proto/VideoFPSEnum.pb.h"
+#include "aasdk_proto/VideoResolutionEnum.pb.h"
 
-namespace openauto
-{
-namespace configuration
-{
+namespace openauto {
+namespace configuration {
 
-class IConfiguration
-{
-public:
-    typedef std::shared_ptr<IConfiguration> Pointer;
-    typedef std::vector<aasdk::proto::enums::ButtonCode::Enum> ButtonCodes;
+class IConfiguration {
+ public:
+  typedef std::shared_ptr<IConfiguration> Pointer;
+  typedef std::vector<aasdk::proto::enums::ButtonCode::Enum> ButtonCodes;
 
-    virtual ~IConfiguration() = default;
+  virtual ~IConfiguration() = default;
 
-    virtual void load() = 0;
-    virtual void reset() = 0;
-    virtual void save() = 0;
+  virtual void load() = 0;
+  virtual void reset() = 0;
+  virtual void save() = 0;
 
-    virtual void setHandednessOfTrafficType(HandednessOfTrafficType value) = 0;
-    virtual HandednessOfTrafficType getHandednessOfTrafficType() const = 0;
-    virtual void showClock(bool value) = 0;
-    virtual bool showClock() const = 0;
+  virtual void setHandednessOfTrafficType(HandednessOfTrafficType value) = 0;
+  virtual HandednessOfTrafficType getHandednessOfTrafficType() const = 0;
+  virtual void showClock(bool value) = 0;
+  virtual bool showClock() const = 0;
 
-    virtual aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const = 0;
-    virtual void setVideoFPS(aasdk::proto::enums::VideoFPS::Enum value) = 0;
-    virtual aasdk::proto::enums::VideoResolution::Enum getVideoResolution() const = 0;
-    virtual void setVideoResolution(aasdk::proto::enums::VideoResolution::Enum value) = 0;
-    virtual size_t getScreenDPI() const = 0;
-    virtual void setScreenDPI(size_t value) = 0;
-    virtual void setOMXLayerIndex(int32_t value) = 0;
-    virtual int32_t getOMXLayerIndex() const = 0;
-    virtual void setVideoMargins(QRect value) = 0;
-    virtual QRect getVideoMargins() const = 0;
+  virtual aasdk::proto::enums::VideoFPS::Enum getVideoFPS() const = 0;
+  virtual void setVideoFPS(aasdk::proto::enums::VideoFPS::Enum value) = 0;
+  virtual aasdk::proto::enums::VideoResolution::Enum getVideoResolution()
+      const = 0;
+  virtual void setVideoResolution(
+      aasdk::proto::enums::VideoResolution::Enum value) = 0;
+  virtual size_t getScreenDPI() const = 0;
+  virtual void setScreenDPI(size_t value) = 0;
+  virtual void setOMXLayerIndex(int32_t value) = 0;
+  virtual int32_t getOMXLayerIndex() const = 0;
+  virtual void setVideoMargins(QRect value) = 0;
+  virtual QRect getVideoMargins() const = 0;
 
-    virtual bool getTouchscreenEnabled() const = 0;
-    virtual void setTouchscreenEnabled(bool value) = 0;
-    virtual ButtonCodes getButtonCodes() const = 0;
-    virtual void setButtonCodes(const ButtonCodes& value) = 0;
+  virtual bool getTouchscreenEnabled() const = 0;
+  virtual void setTouchscreenEnabled(bool value) = 0;
+  virtual ButtonCodes getButtonCodes() const = 0;
+  virtual void setButtonCodes(const ButtonCodes& value) = 0;
 
-    virtual BluetoothAdapterType getBluetoothAdapterType() const = 0;
-    virtual void setBluetoothAdapterType(BluetoothAdapterType value) = 0;
-    virtual std::string getBluetoothRemoteAdapterAddress() const = 0;
-    virtual void setBluetoothRemoteAdapterAddress(const std::string& value) = 0;
+  virtual BluetoothAdapterType getBluetoothAdapterType() const = 0;
+  virtual void setBluetoothAdapterType(BluetoothAdapterType value) = 0;
+  virtual std::string getBluetoothRemoteAdapterAddress() const = 0;
+  virtual void setBluetoothRemoteAdapterAddress(const std::string& value) = 0;
 
-    virtual bool musicAudioChannelEnabled() const = 0;
-    virtual void setMusicAudioChannelEnabled(bool value) = 0;
-    virtual bool speechAudioChannelEnabled() const = 0;
-    virtual void setSpeechAudioChannelEnabled(bool value) = 0;
-    virtual AudioOutputBackendType getAudioOutputBackendType() const = 0;
-    virtual void setAudioOutputBackendType(AudioOutputBackendType value) = 0;
+  virtual bool musicAudioChannelEnabled() const = 0;
+  virtual void setMusicAudioChannelEnabled(bool value) = 0;
+  virtual bool speechAudioChannelEnabled() const = 0;
+  virtual void setSpeechAudioChannelEnabled(bool value) = 0;
+  virtual AudioOutputBackendType getAudioOutputBackendType() const = 0;
+  virtual void setAudioOutputBackendType(AudioOutputBackendType value) = 0;
 
-    virtual std::string getWifiSSID() = 0;
-    virtual void setWifiSSID(std::string value) = 0;
-    virtual std::string getWifiPassword() = 0;
-    virtual void setWifiPassword(std::string value) = 0;
-    virtual std::string getWifiMAC() = 0;
-    virtual void setWifiMAC(std::string value) = 0;
-    virtual bool getAutoconnectBluetooth() = 0;
-    virtual void setAutoconnectBluetooth(bool value) = 0;
-    virtual std::string getLastBluetoothPair() = 0;
-    virtual void setLastBluetoothPair(std::string value) = 0;
+  virtual std::string getWifiSSID() = 0;
+  virtual void setWifiSSID(std::string value) = 0;
+  virtual std::string getWifiPassword() = 0;
+  virtual void setWifiPassword(std::string value) = 0;
+  virtual std::string getWifiMAC() = 0;
+  virtual void setWifiMAC(std::string value) = 0;
+  virtual bool getAutoconnectBluetooth() = 0;
+  virtual void setAutoconnectBluetooth(bool value) = 0;
+  virtual std::string getLastBluetoothPair() = 0;
+  virtual void setLastBluetoothPair(std::string value) = 0;
 };
 
-}
-}
+}  // namespace configuration
+}  // namespace openauto

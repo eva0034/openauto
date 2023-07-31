@@ -18,50 +18,50 @@
 
 #pragma once
 
-#include <QObject>
+#include <bits/stdc++.h>
 #include <QKeyEvent>
+#include <QObject>
 #include "IInputDevice.hpp"
 #include "openauto/Configuration/IConfiguration.hpp"
-#include <bits/stdc++.h>
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-class InputDevice: public QObject, public IInputDevice, boost::noncopyable
-{
-    Q_OBJECT
+class InputDevice : public QObject, public IInputDevice, boost::noncopyable {
+  Q_OBJECT
 
-public:
-    InputDevice(QObject& parent, configuration::IConfiguration::Pointer configuration, const QRect& touchscreenGeometry, const QRect& videoGeometry);
+ public:
+  InputDevice(QObject& parent,
+              configuration::IConfiguration::Pointer configuration,
+              const QRect& touchscreenGeometry, const QRect& videoGeometry);
 
-    void start(IInputDeviceEventHandler& eventHandler) override;
-    void stop() override;
-    ButtonCodes getSupportedButtonCodes() const override;
-    bool eventFilter(QObject* obj, QEvent* event) override;
-    bool hasTouchscreen() const override;
-    QRect getTouchscreenGeometry() const override;
-    void setTouchscreenGeometry(QRect& touchscreenGeometry);
+  void start(IInputDeviceEventHandler& eventHandler) override;
+  void stop() override;
+  ButtonCodes getSupportedButtonCodes() const override;
+  bool eventFilter(QObject* obj, QEvent* event) override;
+  bool hasTouchscreen() const override;
+  QRect getTouchscreenGeometry() const override;
+  void setTouchscreenGeometry(QRect& touchscreenGeometry);
 
-private:
-    void setVideoGeometry();
-    bool handleKeyEvent(QEvent* event, QKeyEvent* key);
-    void dispatchKeyEvent(ButtonEvent event);
-    bool handleTouchEvent(QEvent* event);
-    bool handleMouseEvent(QEvent* event);
+ private:
+  void setVideoGeometry();
+  bool handleKeyEvent(QEvent* event, QKeyEvent* key);
+  void dispatchKeyEvent(ButtonEvent event);
+  bool handleTouchEvent(QEvent* event);
+  bool handleMouseEvent(QEvent* event);
 
-    QObject& parent_;
-    configuration::IConfiguration::Pointer configuration_;
-    QRect touchscreenGeometry_;
-    QRect displayGeometry_;
-    IInputDeviceEventHandler* eventHandler_;
-    std::mutex mutex_;
+  QObject& parent_;
+  configuration::IConfiguration::Pointer configuration_;
+  QRect touchscreenGeometry_;
+  QRect displayGeometry_;
+  IInputDeviceEventHandler* eventHandler_;
+  std::mutex mutex_;
 
-    std::priority_queue <int, std::vector<int>, std::greater<int> > pointer_id_queue;
-    QMap<int, int> pointer_map;
-    int max_pointers = 0;
+  std::priority_queue<int, std::vector<int>, std::greater<int>>
+      pointer_id_queue;
+  QMap<int, int> pointer_map;
+  int max_pointers = 0;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

@@ -16,19 +16,21 @@
 *  along with openauto. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "aasdk/Channel/AV/SystemAudioServiceChannel.hpp"
 #include "openauto/Service/SystemAudioService.hpp"
+#include "aasdk/Channel/AV/SystemAudioServiceChannel.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-SystemAudioService::SystemAudioService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IAudioOutput::Pointer audioOutput)
-    : AudioService(ioService, std::make_shared<aasdk::channel::av::SystemAudioServiceChannel>(strand_, std::move(messenger)), std::move(audioOutput))
-{
+SystemAudioService::SystemAudioService(
+    boost::asio::io_service& ioService,
+    aasdk::messenger::IMessenger::Pointer messenger,
+    projection::IAudioOutput::Pointer audioOutput)
+    : AudioService(
+          ioService,
+          std::make_shared<aasdk::channel::av::SystemAudioServiceChannel>(
+              strand_, std::move(messenger)),
+          std::move(audioOutput)) {}
 
-}
-
-}
-}
+}  // namespace service
+}  // namespace openauto

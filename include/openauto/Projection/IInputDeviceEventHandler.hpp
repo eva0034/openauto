@@ -21,22 +21,18 @@
 #include "InputEvent.hpp"
 #include "aasdk_proto/InputEventIndicationMessage.pb.h"
 
+namespace openauto {
+namespace projection {
 
-namespace openauto
-{
-namespace projection
-{
+class IInputDeviceEventHandler {
+ public:
+  virtual ~IInputDeviceEventHandler() = default;
 
-class IInputDeviceEventHandler
-{
-public:
-    virtual ~IInputDeviceEventHandler() = default;
-
-    virtual void onButtonEvent(const ButtonEvent& event) = 0;
-    virtual void onTouchEvent(aasdk::proto::messages::InputEventIndication inputEventIndication) = 0;
-    virtual void onMouseEvent(const projection::TouchEvent& event) = 0;
-
+  virtual void onButtonEvent(const ButtonEvent& event) = 0;
+  virtual void onTouchEvent(
+      aasdk::proto::messages::InputEventIndication inputEventIndication) = 0;
+  virtual void onMouseEvent(const projection::TouchEvent& event) = 0;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

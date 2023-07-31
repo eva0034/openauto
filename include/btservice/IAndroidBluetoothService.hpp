@@ -20,19 +20,16 @@
 
 #include <QBluetoothAddress>
 
-namespace openauto
-{
-namespace btservice
-{
+namespace openauto {
+namespace btservice {
 
-class IAndroidBluetoothService
-{
-public:
-    virtual ~IAndroidBluetoothService() = default;
+class IAndroidBluetoothService {
+ public:
+  virtual ~IAndroidBluetoothService() = default;
 
-    virtual bool registerService(const QBluetoothAddress& bluetoothAddress) = 0;
-    virtual bool unregisterService() = 0;
+  virtual bool registerService(const QBluetoothAddress& bluetoothAddress) = 0;
+  virtual bool unregisterService() = 0;
 };
 
-}
-}
+}  // namespace btservice
+}  // namespace openauto

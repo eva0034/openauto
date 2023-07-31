@@ -21,42 +21,42 @@
 
 #pragma once
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-class LocalBluetoothDevice: public QObject, public IBluetoothDevice
-{
-    Q_OBJECT
+class LocalBluetoothDevice : public QObject, public IBluetoothDevice {
+  Q_OBJECT
 
-public:
-    LocalBluetoothDevice();
+ public:
+  LocalBluetoothDevice();
 
-    void stop() override;
-    bool isPaired(const std::string& address) const override;
-    void pair(const std::string& address, PairingPromise::Pointer promise) override;
-    std::string getLocalAddress() const override;
-    bool isAvailable() const override;
+  void stop() override;
+  bool isPaired(const std::string& address) const override;
+  void pair(const std::string& address,
+            PairingPromise::Pointer promise) override;
+  std::string getLocalAddress() const override;
+  bool isAvailable() const override;
 
-signals:
-    void startPairing(const QString& address, PairingPromise::Pointer promise);
+ signals:
+  void startPairing(const QString& address, PairingPromise::Pointer promise);
 
-private slots:
-    void createBluetoothLocalDevice();
-    void onStartPairing(const QString& address, PairingPromise::Pointer promise);
-    void onPairingDisplayConfirmation(const QBluetoothAddress &address, QString pin);
-    void onPairingDisplayPinCode(const QBluetoothAddress &address, QString pin);
-    void onPairingFinished(const QBluetoothAddress &address, QBluetoothLocalDevice::Pairing pairing);
-    void onError(QBluetoothLocalDevice::Error error);
-    void onHostModeStateChanged(QBluetoothLocalDevice::HostMode state);
+ private slots:
+  void createBluetoothLocalDevice();
+  void onStartPairing(const QString& address, PairingPromise::Pointer promise);
+  void onPairingDisplayConfirmation(const QBluetoothAddress& address,
+                                    QString pin);
+  void onPairingDisplayPinCode(const QBluetoothAddress& address, QString pin);
+  void onPairingFinished(const QBluetoothAddress& address,
+                         QBluetoothLocalDevice::Pairing pairing);
+  void onError(QBluetoothLocalDevice::Error error);
+  void onHostModeStateChanged(QBluetoothLocalDevice::HostMode state);
 
-private:
-    mutable std::mutex mutex_;
-    std::unique_ptr<QBluetoothLocalDevice> localDevice_;
-    PairingPromise::Pointer pairingPromise_;
-    QBluetoothAddress pairingAddress_;
+ private:
+  mutable std::mutex mutex_;
+  std::unique_ptr<QBluetoothLocalDevice> localDevice_;
+  PairingPromise::Pointer pairingPromise_;
+  QBluetoothAddress pairingAddress_;
 };
 
-}
-}
+}  // namespace projection
+}  // namespace openauto

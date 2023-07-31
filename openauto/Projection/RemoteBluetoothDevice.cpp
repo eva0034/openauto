@@ -18,41 +18,30 @@
 
 #include "openauto/Projection/RemoteBluetoothDevice.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
 RemoteBluetoothDevice::RemoteBluetoothDevice(const std::string& address)
-    : address_(address)
-{
+    : address_(address) {}
 
+void RemoteBluetoothDevice::stop() {}
+
+bool RemoteBluetoothDevice::isPaired(const std::string&) const {
+  return true;
 }
 
-void RemoteBluetoothDevice::stop()
-{
-
+void RemoteBluetoothDevice::pair(const std::string&,
+                                 PairingPromise::Pointer promise) {
+  promise->resolve();
 }
 
-bool RemoteBluetoothDevice::isPaired(const std::string&) const
-{
-    return true;
+std::string RemoteBluetoothDevice::getLocalAddress() const {
+  return address_;
 }
 
-void RemoteBluetoothDevice::pair(const std::string&, PairingPromise::Pointer promise)
-{
-    promise->resolve();
+bool RemoteBluetoothDevice::isAvailable() const {
+  return true;
 }
 
-std::string RemoteBluetoothDevice::getLocalAddress() const
-{
-    return address_;
-}
-
-bool RemoteBluetoothDevice::isAvailable() const
-{
-    return true;
-}
-
-}
-}
+}  // namespace projection
+}  // namespace openauto

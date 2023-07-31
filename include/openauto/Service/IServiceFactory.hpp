@@ -18,21 +18,19 @@
 
 #pragma once
 
-#include "aasdk/Messenger/IMessenger.hpp"
 #include "IService.hpp"
+#include "aasdk/Messenger/IMessenger.hpp"
 
-namespace openauto
-{
-namespace service
-{
+namespace openauto {
+namespace service {
 
-class IServiceFactory
-{
-public:
-    virtual ~IServiceFactory() = default;
+class IServiceFactory {
+ public:
+  virtual ~IServiceFactory() = default;
 
-    virtual ServiceList create(aasdk::messenger::IMessenger::Pointer messenger) = 0;
+  virtual ServiceList create(
+      aasdk::messenger::IMessenger::Pointer messenger) = 0;
 };
 
-}
-}
+}  // namespace service
+}  // namespace openauto

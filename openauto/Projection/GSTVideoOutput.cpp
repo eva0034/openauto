@@ -17,267 +17,268 @@
 */
 #ifdef USE_GST
 
-#include "aasdk/Common/Data.hpp"
 #include "openauto/Projection/GSTVideoOutput.hpp"
-#include "OpenautoLog.hpp"
 #include <QTimer>
+#include "OpenautoLog.hpp"
+#include "aasdk/Common/Data.hpp"
 
-namespace openauto
-{
-namespace projection
-{
+namespace openauto {
+namespace projection {
 
-GSTVideoOutput::GSTVideoOutput(configuration::IConfiguration::Pointer configuration, QWidget* videoContainer, std::function<void(bool)> activeCallback)
-    : VideoOutput(std::move(configuration))
-    , videoContainer_(videoContainer)
-    , activeCallback_(activeCallback)
-{
-    this->moveToThread(QApplication::instance()->thread());
-    videoWidget_ = new QQuickWidget(videoContainer_);
+GSTVideoOutput::GSTVideoOutput(
+    configuration::IConfiguration::Pointer configuration,
+    QWidget* videoContainer, std::function<void(bool)> activeCallback)
+    : VideoOutput(std::move(configuration)),
+      videoContainer_(videoContainer),
+      activeCallback_(activeCallback) {
+  this->moveToThread(QApplication::instance()->thread());
+  videoWidget_ = new QQuickWidget(videoContainer_);
 
-    surface_ = new QGst::Quick::VideoSurface;
-    videoWidget_->rootContext()->setContextProperty(QLatin1String("videoSurface"), surface_);
-    videoWidget_->setSource(QUrl("qrc:/aa_video.qml"));
-    videoWidget_->setResizeMode(QQuickWidget::SizeRootObjectToView); 
+  surface_ = new QGst::Quick::VideoSurface;
+  videoWidget_->rootContext()->setContextProperty(QLatin1String("videoSurface"),
+                                                  surface_);
+  videoWidget_->setSource(QUrl("qrc:/aa_video.qml"));
+  videoWidget_->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    videoSink_ = surface_->videoSink();
+  videoSink_ = surface_->videoSink();
 
+  GError* error = nullptr;
+  std::string vidLaunchStr =
+      "appsrc name=mysrc is-live=true block=false max-latency=100 "
+      "do-timestamp=true stream-type=stream ! queue ! h264parse ! capssetter "
+      "caps=\"video/x-h264,colorimetry=bt709\" ! ";
+  vidLaunchStr += ToPipeline(findPreferredVideoDecoder());
+  vidLaunchStr +=
+      " ! videocrop top=0 bottom=0 name=videocropper ! capsfilter "
+      "caps=video/x-raw name=mycapsfilter";
 
-    GError* error = nullptr;
-    std::string vidLaunchStr = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! queue ! h264parse ! capssetter caps=\"video/x-h264,colorimetry=bt709\" ! ";
-    vidLaunchStr += ToPipeline(findPreferredVideoDecoder());
-    vidLaunchStr += " ! videocrop top=0 bottom=0 name=videocropper ! capsfilter caps=video/x-raw name=mycapsfilter";
-    
-    vidPipeline_ = gst_parse_launch(vidLaunchStr.c_str(), &error);
-    GstBus* bus = gst_pipeline_get_bus(GST_PIPELINE(vidPipeline_));
-    gst_bus_add_watch(bus, (GstBusFunc)&GSTVideoOutput::busCallback, this);
-    gst_object_unref(bus);
+  vidPipeline_ = gst_parse_launch(vidLaunchStr.c_str(), &error);
+  GstBus* bus = gst_pipeline_get_bus(GST_PIPELINE(vidPipeline_));
+  gst_bus_add_watch(bus, (GstBusFunc)&GSTVideoOutput::busCallback, this);
+  gst_object_unref(bus);
 
-    GstElement* sink = QGlib::RefPointer<QGst::Element>(videoSink_);
-    g_object_set(sink, "force-aspect-ratio", false, nullptr);
-    g_object_set(sink, "sync", false, nullptr);
-    g_object_set(sink, "async", false, nullptr);
+  GstElement* sink = QGlib::RefPointer<QGst::Element>(videoSink_);
+  g_object_set(sink, "force-aspect-ratio", false, nullptr);
+  g_object_set(sink, "sync", false, nullptr);
+  g_object_set(sink, "async", false, nullptr);
 
-    GstElement* capsFilter = gst_bin_get_by_name(GST_BIN(vidPipeline_), "mycapsfilter");
-    gst_bin_add(GST_BIN(vidPipeline_), GST_ELEMENT(sink));
-    gst_element_link(capsFilter, GST_ELEMENT(sink));
+  GstElement* capsFilter =
+      gst_bin_get_by_name(GST_BIN(vidPipeline_), "mycapsfilter");
+  gst_bin_add(GST_BIN(vidPipeline_), GST_ELEMENT(sink));
+  gst_element_link(capsFilter, GST_ELEMENT(sink));
 
-    vidSrc_ = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vidPipeline_), "mysrc"));
-    gst_app_src_set_stream_type(vidSrc_, GST_APP_STREAM_TYPE_STREAM);
+  vidSrc_ = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vidPipeline_), "mysrc"));
+  gst_app_src_set_stream_type(vidSrc_, GST_APP_STREAM_TYPE_STREAM);
 
-    vidCrop_ = GST_VIDEO_FILTER(gst_bin_get_by_name(GST_BIN(vidPipeline_), "videocropper"));
+  vidCrop_ = GST_VIDEO_FILTER(
+      gst_bin_get_by_name(GST_BIN(vidPipeline_), "videocropper"));
 
-    connect(this, &GSTVideoOutput::startPlayback, this, &GSTVideoOutput::onStartPlayback, Qt::QueuedConnection);
-    connect(this, &GSTVideoOutput::stopPlayback, this, &GSTVideoOutput::onStopPlayback, Qt::QueuedConnection);
+  connect(this, &GSTVideoOutput::startPlayback, this,
+          &GSTVideoOutput::onStartPlayback, Qt::QueuedConnection);
+  connect(this, &GSTVideoOutput::stopPlayback, this,
+          &GSTVideoOutput::onStopPlayback, Qt::QueuedConnection);
 }
 
-GSTVideoOutput::~GSTVideoOutput()
-{
-    gst_object_unref(vidPipeline_);
-    gst_object_unref(vidSrc_);
+GSTVideoOutput::~GSTVideoOutput() {
+  gst_object_unref(vidPipeline_);
+  gst_object_unref(vidSrc_);
 }
 
-
-H264_Decoder GSTVideoOutput::findPreferredVideoDecoder()
-{
-    for (H264_Decoder decoder : H264_Decoder_Priority_List) {
-        GstElementFactory *decoder_factory = gst_element_factory_find (ToString(decoder));
-        if(decoder_factory != nullptr){
-            gst_object_unref(decoder_factory);
-            OPENAUTO_LOG(info) << "[GSTVideoOutput] Selecting the " << ToString(decoder) << " h264 decoder";
-            return decoder;
-        }
+H264_Decoder GSTVideoOutput::findPreferredVideoDecoder() {
+  for (H264_Decoder decoder : H264_Decoder_Priority_List) {
+    GstElementFactory* decoder_factory =
+        gst_element_factory_find(ToString(decoder));
+    if (decoder_factory != nullptr) {
+      gst_object_unref(decoder_factory);
+      OPENAUTO_LOG(info) << "[GSTVideoOutput] Selecting the "
+                         << ToString(decoder) << " h264 decoder";
+      return decoder;
     }
-    OPENAUTO_LOG(error) << "[GSTVideoOutput] Couldn't find a decoder to use!";
-    return H264_Decoder::unknown;
+  }
+  OPENAUTO_LOG(error) << "[GSTVideoOutput] Couldn't find a decoder to use!";
+  return H264_Decoder::unknown;
 }
 
-void GSTVideoOutput::dumpDot()
-{    
-    gst_debug_bin_to_dot_file(GST_BIN(vidPipeline_), GST_DEBUG_GRAPH_SHOW_VERBOSE, "pipeline");
-    OPENAUTO_LOG(info) << "[GSTVideoOutput] Dumped dot debug info";
+void GSTVideoOutput::dumpDot() {
+  gst_debug_bin_to_dot_file(GST_BIN(vidPipeline_), GST_DEBUG_GRAPH_SHOW_VERBOSE,
+                            "pipeline");
+  OPENAUTO_LOG(info) << "[GSTVideoOutput] Dumped dot debug info";
 }
 
-gboolean GSTVideoOutput::busCallback(GstBus*, GstMessage* message, gpointer*)
-{
-    gchar* debug;
-    GError* err;
-    gchar* name;
+gboolean GSTVideoOutput::busCallback(GstBus*, GstMessage* message, gpointer*) {
+  gchar* debug;
+  GError* err;
+  gchar* name;
 
-    switch(GST_MESSAGE_TYPE(message))
-    {
+  switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR:
-        gst_message_parse_error(message, &err, &debug);
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] Error " << err->message;
-        g_error_free(err);
-        g_free(debug);
-        break;
+      gst_message_parse_error(message, &err, &debug);
+      OPENAUTO_LOG(info) << "[GSTVideoOutput] Error " << err->message;
+      g_error_free(err);
+      g_free(debug);
+      break;
     case GST_MESSAGE_WARNING:
-        gst_message_parse_warning(message, &err, &debug);
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] Warning " << err->message << " | Debug " << debug;
-        name = (gchar*)GST_MESSAGE_SRC_NAME(message);
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] Name of src " << (name ? name : "nil");
-        g_error_free(err);
-        g_free(debug);
-        break;
+      gst_message_parse_warning(message, &err, &debug);
+      OPENAUTO_LOG(info) << "[GSTVideoOutput] Warning " << err->message
+                         << " | Debug " << debug;
+      name = (gchar*)GST_MESSAGE_SRC_NAME(message);
+      OPENAUTO_LOG(info) << "[GSTVideoOutput] Name of src "
+                         << (name ? name : "nil");
+      g_error_free(err);
+      g_free(debug);
+      break;
     case GST_MESSAGE_EOS:
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] End of stream";
-        break;
+      OPENAUTO_LOG(info) << "[GSTVideoOutput] End of stream";
+      break;
     case GST_MESSAGE_STATE_CHANGED:
     default:
-        break;
+      break;
+  }
+
+  return TRUE;
+}
+
+bool GSTVideoOutput::open() {
+  GstElement* capsFilter =
+      gst_bin_get_by_name(GST_BIN(vidPipeline_), "mycapsfilter");
+  GstPad* convertPad = gst_element_get_static_pad(capsFilter, "sink");
+  gst_pad_add_probe(convertPad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,
+                    &GSTVideoOutput::convertProbe, this, nullptr);
+  gst_element_set_state(vidPipeline_, GST_STATE_PLAYING);
+
+  return true;
+}
+
+GstPadProbeReturn GSTVideoOutput::convertProbe(GstPad* pad,
+                                               GstPadProbeInfo* info, void*) {
+  GstEvent* event = GST_PAD_PROBE_INFO_EVENT(info);
+  if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM) {
+    if (GST_EVENT_TYPE(event) == GST_EVENT_SEGMENT) {
+      GstCaps* caps = gst_pad_get_current_caps(pad);
+      if (caps != nullptr) {
+        GstVideoInfo* vinfo = gst_video_info_new();
+        gst_video_info_from_caps(vinfo, caps);
+        OPENAUTO_LOG(info) << "[GSTVideoOutput] Video Width: " << vinfo->width;
+        OPENAUTO_LOG(info) << "[GSTVideoOutput] Video Height: "
+                           << vinfo->height;
+      }
+
+      return GST_PAD_PROBE_REMOVE;
     }
+  }
 
-    return TRUE;
+  return GST_PAD_PROBE_OK;
 }
 
-bool GSTVideoOutput::open()
-{
-    GstElement* capsFilter = gst_bin_get_by_name(GST_BIN(vidPipeline_), "mycapsfilter");
-    GstPad* convertPad = gst_element_get_static_pad(capsFilter, "sink");
-    gst_pad_add_probe(convertPad, GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, &GSTVideoOutput::convertProbe, this, nullptr);
-    gst_element_set_state(vidPipeline_, GST_STATE_PLAYING);
+bool GSTVideoOutput::init() {
+  OPENAUTO_LOG(info) << "[GSTVideoOutput] init";
+  emit startPlayback();
 
-    return true;
+  return true;
 }
 
-GstPadProbeReturn GSTVideoOutput::convertProbe(GstPad* pad, GstPadProbeInfo* info, void*)
-{
-    GstEvent* event = GST_PAD_PROBE_INFO_EVENT(info);
-    if(GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM)
-    {
-        if(GST_EVENT_TYPE(event) == GST_EVENT_SEGMENT)
-        {
-            GstCaps* caps  = gst_pad_get_current_caps(pad);
-            if(caps != nullptr)
-            {
-                GstVideoInfo* vinfo = gst_video_info_new();
-                gst_video_info_from_caps(vinfo, caps);
-                OPENAUTO_LOG(info) << "[GSTVideoOutput] Video Width: " << vinfo->width;
-                OPENAUTO_LOG(info) << "[GSTVideoOutput] Video Height: " << vinfo->height;
-            }
-
-            return GST_PAD_PROBE_REMOVE;
-        }
-    }
-
-    return GST_PAD_PROBE_OK;
+void GSTVideoOutput::write(uint64_t timestamp,
+                           const aasdk::common::DataConstBuffer& buffer) {
+  GstBuffer* buffer_ = gst_buffer_new_and_alloc(buffer.size);
+  gst_buffer_fill(buffer_, 0, buffer.cdata, buffer.size);
+  int ret = gst_app_src_push_buffer((GstAppSrc*)vidSrc_, buffer_);
+  if (ret != GST_FLOW_OK) {
+    OPENAUTO_LOG(info) << "[GSTVideoOutput] push buffer returned " << ret
+                       << " for " << buffer.size << "bytes";
+  }
 }
 
-bool GSTVideoOutput::init()
-{
-    OPENAUTO_LOG(info) << "[GSTVideoOutput] init";
-    emit startPlayback();
+void GSTVideoOutput::onStartPlayback() {
+  if (activeCallback_ != nullptr) {
+    activeCallback_(true);
+  }
 
-    return true;
+  if (videoContainer_ == nullptr) {
+    OPENAUTO_LOG(info)
+        << "[GSTVideoOutput] No video container, setting projection fullscreen";
+    videoWidget_->setFocus();
+    videoWidget_->setWindowFlags(Qt::WindowStaysOnTopHint |
+                                 Qt::FramelessWindowHint);
+    videoWidget_->showFullScreen();
+  } else {
+    OPENAUTO_LOG(info) << "[GSTVideoOutput] Resizing to video container";
+    videoWidget_->resize(videoContainer_->size());
+  }
+  videoWidget_->show();
+  QTimer::singleShot(10000, this, SLOT(dumpDot()));
 }
 
-void GSTVideoOutput::write(uint64_t timestamp, const aasdk::common::DataConstBuffer& buffer)
-{
-    GstBuffer* buffer_ = gst_buffer_new_and_alloc(buffer.size);
-    gst_buffer_fill(buffer_, 0, buffer.cdata, buffer.size);
-    int ret = gst_app_src_push_buffer((GstAppSrc*)vidSrc_, buffer_);
-    if(ret != GST_FLOW_OK)
-    {
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] push buffer returned " << ret << " for " << buffer.size << "bytes";
-    }
+void GSTVideoOutput::stop() {
+  emit stopPlayback();
 }
 
-void GSTVideoOutput::onStartPlayback()
-{
-    if(activeCallback_ != nullptr)
-    {
-        activeCallback_(true);
-    }
+void GSTVideoOutput::onStopPlayback() {
+  if (activeCallback_ != nullptr) {
+    activeCallback_(false);
+  }
 
-    if(videoContainer_ == nullptr)
-    {
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] No video container, setting projection fullscreen";
-        videoWidget_->setFocus();
-        videoWidget_->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
-        videoWidget_->showFullScreen();
-    }
-    else
-    {
-        OPENAUTO_LOG(info) << "[GSTVideoOutput] Resizing to video container";
-        videoWidget_->resize(videoContainer_->size());
-    }
-    videoWidget_->show();
-    QTimer::singleShot(10000, this, SLOT(dumpDot()));
+  OPENAUTO_LOG(info) << "[GSTVideoOutput] stop.";
+  gst_element_set_state(vidPipeline_, GST_STATE_PAUSED);
+  videoWidget_->hide();
 }
 
-void GSTVideoOutput::stop()
-{
-    emit stopPlayback();
+void GSTVideoOutput::resize() {
+  OPENAUTO_LOG(info) << "[GSTVideoOutput] Got resize request to "
+                     << videoContainer_->width() << "x"
+                     << videoContainer_->height();
+
+  if (videoWidget_ != nullptr && videoContainer_ != nullptr) {
+    videoWidget_->resize(videoContainer_->size());
+  }
+
+  int width = 0;
+  int height = 0;
+  int containerWidth = videoContainer_->width();
+  int containerHeight = videoContainer_->height();
+
+  switch (this->getVideoResolution()) {
+    case aasdk::proto::enums::VideoResolution_Enum__1080p:
+      width = 1920;
+      height = 1080;
+      break;
+    case aasdk::proto::enums::VideoResolution_Enum__720p:
+      width = 1280;
+      height = 720;
+      break;
+    case aasdk::proto::enums::VideoResolution_Enum__480p:
+      width = 800;
+      height = 480;
+      break;
+  }
+
+  double marginWidth = 0;
+  double marginHeight = 0;
+
+  double widthRatio = (double)containerWidth / width;
+  double heightRatio = (double)containerHeight / height;
+
+  if (widthRatio > heightRatio) {
+    //cropping height
+    marginHeight = (widthRatio * height - containerHeight) / widthRatio;
+    marginHeight /= 2;
+  } else {
+    //cropping width
+    marginWidth = (heightRatio * width - containerWidth) / heightRatio;
+    marginWidth /= 2;
+  }
+
+  OPENAUTO_LOG(info) << "[GSTVideoOutput] Android Auto is " << width << "x"
+                     << height << ", calculated margins of: " << marginWidth
+                     << "x" << marginHeight;
+  g_object_set(vidCrop_, "top", (int)marginHeight, nullptr);
+  g_object_set(vidCrop_, "bottom", (int)marginHeight, nullptr);
+  g_object_set(vidCrop_, "left", (int)marginWidth, nullptr);
+  g_object_set(vidCrop_, "right", (int)marginWidth, nullptr);
+  this->configuration_->setVideoMargins(
+      QRect(0, 0, (int)(marginWidth * 2), (int)(marginHeight * 2)));
 }
 
-void GSTVideoOutput::onStopPlayback()
-{
-    if(activeCallback_ != nullptr)
-    {
-        activeCallback_(false);
-    }
-
-    OPENAUTO_LOG(info) << "[GSTVideoOutput] stop.";
-    gst_element_set_state(vidPipeline_, GST_STATE_PAUSED);
-    videoWidget_->hide();
-}
-
-void GSTVideoOutput::resize()
-{
-    OPENAUTO_LOG(info) << "[GSTVideoOutput] Got resize request to "<< videoContainer_->width() << "x" << videoContainer_->height();
-
-    if(videoWidget_ != nullptr && videoContainer_ != nullptr)
-    {
-        videoWidget_->resize(videoContainer_->size());
-    }
-
-    int width = 0;
-    int height = 0;
-    int containerWidth = videoContainer_->width();
-    int containerHeight = videoContainer_->height();
-
-    switch(this->getVideoResolution()){
-        case aasdk::proto::enums::VideoResolution_Enum__1080p:
-            width = 1920;
-            height = 1080;
-            break;
-        case aasdk::proto::enums::VideoResolution_Enum__720p:
-            width = 1280;
-            height = 720;
-            break;
-        case aasdk::proto::enums::VideoResolution_Enum__480p:
-            width = 800;
-            height = 480;
-            break;
-    }
-
-    double marginWidth = 0;
-    double marginHeight = 0;
-
-    double widthRatio = (double)containerWidth / width;
-    double heightRatio = (double)containerHeight / height;
-
-    if(widthRatio > heightRatio){
-        //cropping height
-        marginHeight = (widthRatio * height - containerHeight)/widthRatio;
-        marginHeight /= 2;
-    }else{
-        //cropping width
-        marginWidth = (heightRatio * width - containerWidth)/heightRatio;
-        marginWidth /= 2;
-    }
-    
-
-    OPENAUTO_LOG(info) << "[GSTVideoOutput] Android Auto is "<< width << "x" << height << ", calculated margins of: " << marginWidth << "x" << marginHeight;
-    g_object_set(vidCrop_, "top", (int)marginHeight, nullptr);
-    g_object_set(vidCrop_, "bottom", (int)marginHeight, nullptr);
-    g_object_set(vidCrop_, "left", (int)marginWidth, nullptr);
-    g_object_set(vidCrop_, "right", (int)marginWidth, nullptr);
-    this->configuration_->setVideoMargins(QRect(0,0,(int)(marginWidth*2), (int)(marginHeight*2)));
-}
-
-}
-}
+}  // namespace projection
+}  // namespace openauto
 
 #endif

@@ -18,16 +18,10 @@
 
 #pragma once
 
-namespace openauto
-{
-namespace configuration
-{
+namespace openauto {
+namespace configuration {
 
-enum class AudioOutputBackendType
-{
-    RTAUDIO,
-    QT
-};
+enum class AudioOutputBackendType { RTAUDIO, QT };
 
 }
-}
+}  // namespace openauto
