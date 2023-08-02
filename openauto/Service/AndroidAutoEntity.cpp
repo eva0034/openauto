@@ -146,10 +146,6 @@ void AndroidAutoEntity::onHandshake(
 
 void AndroidAutoEntity::onServiceDiscoveryRequest(
     const aasdk::proto::messages::ServiceDiscoveryRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] Discovery request, device name: "
-                     << request.device_name()
-                     << ", brand: " << request.device_brand();
-
   aasdk::proto::messages::ServiceDiscoveryResponse serviceDiscoveryResponse;
   serviceDiscoveryResponse.mutable_channels()->Reserve(256);
   serviceDiscoveryResponse.set_head_unit_name("OpenAuto");
@@ -181,17 +177,10 @@ void AndroidAutoEntity::onServiceDiscoveryRequest(
 
 void AndroidAutoEntity::onAudioFocusRequest(
     const aasdk::proto::messages::AudioFocusRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] requested audio focus, type: "
-                     << request.audio_focus_type();
-
   aasdk::proto::enums::AudioFocusState::Enum audioFocusState =
       request.audio_focus_type() == aasdk::proto::enums::AudioFocusType::RELEASE
           ? aasdk::proto::enums::AudioFocusState::LOSS
           : aasdk::proto::enums::AudioFocusState::GAIN;
-
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] audio focus state: "
-                     << audioFocusState;
-
   aasdk::proto::messages::AudioFocusResponse response;
   response.set_audio_focus_state(audioFocusState);
 
@@ -205,9 +194,6 @@ void AndroidAutoEntity::onAudioFocusRequest(
 
 void AndroidAutoEntity::onShutdownRequest(
     const aasdk::proto::messages::ShutdownRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] Shutdown request, reason: "
-                     << request.reason();
-
   aasdk::proto::messages::ShutdownResponse response;
   auto promise = aasdk::channel::SendPromise::defer(strand_);
   promise->then(
@@ -220,15 +206,11 @@ void AndroidAutoEntity::onShutdownRequest(
 
 void AndroidAutoEntity::onShutdownResponse(
     const aasdk::proto::messages::ShutdownResponse&) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] Shutdown response ";
   this->triggerQuit();
 }
 
 void AndroidAutoEntity::onNavigationFocusRequest(
     const aasdk::proto::messages::NavigationFocusRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] navigation focus request, type: "
-                     << request.type();
-
   aasdk::proto::messages::NavigationFocusResponse response;
   response.set_type(2);
 
@@ -243,11 +225,6 @@ void AndroidAutoEntity::onNavigationFocusRequest(
 
 void AndroidAutoEntity::onVoiceSessionRequest(
     const aasdk::proto::messages::VoiceSessionRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] Voice session request, type: "
-                     << ((request.type() == 1)
-                             ? "START"
-                             : ((request.type() == 2) ? "STOP" : "UNKNOWN"));
-
   auto promise = aasdk::channel::SendPromise::defer(strand_);
   promise->then([]() {},
                 std::bind(&AndroidAutoEntity::onChannelError,
@@ -257,8 +234,6 @@ void AndroidAutoEntity::onVoiceSessionRequest(
 
 void AndroidAutoEntity::onPingRequest(
     const aasdk::proto::messages::PingRequest& request) {
-  OPENAUTO_LOG(info) << "[AndroidAutoEntity] Ping Request";
-
   aasdk::proto::messages::PingResponse response;
   response.set_timestamp(request.timestamp());
   auto promise = aasdk::channel::SendPromise::defer(strand_);

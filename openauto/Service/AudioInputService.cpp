@@ -65,13 +65,9 @@ void AudioInputService::fillFeatures(
 
 void AudioInputService::onChannelOpenRequest(
     const aasdk::proto::messages::ChannelOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[AudioInputService] open request, priority: "
-                     << request.priority();
   const aasdk::proto::enums::Status::Enum status =
       audioInput_->open() ? aasdk::proto::enums::Status::OK
                           : aasdk::proto::enums::Status::FAIL;
-  OPENAUTO_LOG(info) << "[AudioInputService] open status: " << status;
-
   aasdk::proto::messages::ChannelOpenResponse response;
   response.set_status(status);
 
@@ -86,11 +82,8 @@ void AudioInputService::onChannelOpenRequest(
 
 void AudioInputService::onAVChannelSetupRequest(
     const aasdk::proto::messages::AVChannelSetupRequest& request) {
-  OPENAUTO_LOG(info) << "[AudioInputService] setup request, config index: "
-                     << request.config_index();
   const aasdk::proto::enums::AVChannelSetupStatus::Enum status =
       aasdk::proto::enums::AVChannelSetupStatus::OK;
-  OPENAUTO_LOG(info) << "[AudioInputService] setup status: " << status;
 
   aasdk::proto::messages::AVChannelSetupResponse response;
   response.set_media_status(status);
@@ -108,11 +101,6 @@ void AudioInputService::onAVChannelSetupRequest(
 
 void AudioInputService::onAVInputOpenRequest(
     const aasdk::proto::messages::AVInputOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[AudioInputService] input open request, open: "
-                     << request.open() << ", anc: " << request.anc()
-                     << ", ec: " << request.ec()
-                     << ", max unacked: " << request.max_unacked();
-
   if (request.open()) {
     auto startPromise = projection::IAudioInput::StartPromise::defer(strand_);
     startPromise->then(
@@ -161,8 +149,6 @@ void AudioInputService::onChannelError(const aasdk::error::Error& e) {
 }
 
 void AudioInputService::onAudioInputOpenSucceed() {
-  OPENAUTO_LOG(info) << "[AudioInputService] audio input open succeed.";
-
   aasdk::proto::messages::AVInputOpenResponse response;
   response.set_session(session_);
   response.set_value(0);

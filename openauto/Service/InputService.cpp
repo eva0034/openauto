@@ -30,7 +30,6 @@ InputService::InputService(boost::asio::io_service& ioService,
       channel_(std::make_shared<aasdk::channel::input::InputServiceChannel>(
           strand_, std::move(messenger))),
       inputDevice_(std::move(inputDevice)) {
-  OPENAUTO_LOG(info) << "[InputService] Created";
 }
 
 void InputService::start() {
@@ -75,12 +74,8 @@ void InputService::fillFeatures(
 
 void InputService::onChannelOpenRequest(
     const aasdk::proto::messages::ChannelOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[InputService] open request, priority: "
-                     << request.priority();
   const aasdk::proto::enums::Status::Enum status =
       aasdk::proto::enums::Status::OK;
-  OPENAUTO_LOG(info) << "[InputService] open status: " << status;
-
   aasdk::proto::messages::ChannelOpenResponse response;
   response.set_status(status);
 
@@ -95,9 +90,6 @@ void InputService::onChannelOpenRequest(
 
 void InputService::onBindingRequest(
     const aasdk::proto::messages::BindingRequest& request) {
-  OPENAUTO_LOG(info) << "[InputService] binding request, scan codes count: "
-                     << request.scan_codes_size();
-
   aasdk::proto::enums::Status::Enum status = aasdk::proto::enums::Status::OK;
   const auto& supportedButtonCodes = inputDevice_->getSupportedButtonCodes();
 
@@ -118,9 +110,6 @@ void InputService::onBindingRequest(
   if (status == aasdk::proto::enums::Status::OK) {
     inputDevice_->start(*this);
   }
-
-  OPENAUTO_LOG(info) << "[InputService] binding request, status: " << status;
-
   auto promise = aasdk::channel::SendPromise::defer(strand_);
   promise->then([]() {},
                 std::bind(&InputService::onChannelError,

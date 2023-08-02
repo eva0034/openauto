@@ -86,25 +86,9 @@ void AudioService::fillFeatures(
 
 void AudioService::onChannelOpenRequest(
     const aasdk::proto::messages::ChannelOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[AudioService] open request"
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId())
-                     << ", priority: " << request.priority();
-
-  OPENAUTO_LOG(debug) << "[AudioService] channel: "
-                      << aasdk::messenger::channelIdToString(channel_->getId())
-                      << " audio output sample rate: "
-                      << audioOutput_->getSampleRate()
-                      << ", sample size: " << audioOutput_->getSampleSize()
-                      << ", channel count: " << audioOutput_->getChannelCount();
-
   const aasdk::proto::enums::Status::Enum status =
       audioOutput_->open() ? aasdk::proto::enums::Status::OK
                            : aasdk::proto::enums::Status::FAIL;
-  OPENAUTO_LOG(info) << "[AudioService] open status: " << status
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId());
-
   aasdk::proto::messages::ChannelOpenResponse response;
   response.set_status(status);
 
@@ -118,16 +102,8 @@ void AudioService::onChannelOpenRequest(
 
 void AudioService::onAVChannelSetupRequest(
     const aasdk::proto::messages::AVChannelSetupRequest& request) {
-  OPENAUTO_LOG(info) << "[AudioService] setup request"
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId())
-                     << ", config index: " << request.config_index();
   const aasdk::proto::enums::AVChannelSetupStatus::Enum status =
       aasdk::proto::enums::AVChannelSetupStatus::OK;
-  OPENAUTO_LOG(info) << "[AudioService] setup status: " << status
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId());
-
   aasdk::proto::messages::AVChannelSetupResponse response;
   response.set_media_status(status);
   response.set_max_unacked(1);
@@ -143,10 +119,6 @@ void AudioService::onAVChannelSetupRequest(
 
 void AudioService::onAVChannelStartIndication(
     const aasdk::proto::messages::AVChannelStartIndication& indication) {
-  OPENAUTO_LOG(info) << "[AudioService] start indication"
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId())
-                     << ", session: " << indication.session();
   session_ = indication.session();
   audioOutput_->start();
   channel_->receive(this->shared_from_this());
@@ -154,10 +126,6 @@ void AudioService::onAVChannelStartIndication(
 
 void AudioService::onAVChannelStopIndication(
     const aasdk::proto::messages::AVChannelStopIndication& indication) {
-  OPENAUTO_LOG(info) << "[AudioService] stop indication"
-                     << ", channel: "
-                     << aasdk::messenger::channelIdToString(channel_->getId())
-                     << ", session: " << session_;
   session_ = -1;
   audioOutput_->suspend();
   channel_->receive(this->shared_from_this());

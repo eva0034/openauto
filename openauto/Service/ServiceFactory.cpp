@@ -71,7 +71,6 @@ ServiceFactory::ServiceFactory(
       ,
       btservice_(configuration_),
       nightMode_(nightMode) {
-  OPENAUTO_LOG(info) << "SERVICE FACTORY INITED";
 }
 
 ServiceList ServiceFactory::create(

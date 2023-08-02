@@ -39,12 +39,8 @@ void MediaStatusService::fillFeatures(
 
 void MediaStatusService::onChannelOpenRequest(
     const aasdk::proto::messages::ChannelOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[MediaStatusService] open request, priority: "
-                     << request.priority();
   const aasdk::proto::enums::Status::Enum status =
       aasdk::proto::enums::Status::OK;
-  OPENAUTO_LOG(info) << "[MediaStatusService] open status: " << status;
-
   aasdk::proto::messages::ChannelOpenResponse response;
   response.set_status(status);
 
@@ -63,14 +59,6 @@ void MediaStatusService::onChannelError(const aasdk::error::Error& e) {
 
 void MediaStatusService::onMetadataUpdate(
     const aasdk::proto::messages::MediaInfoChannelMetadataData& metadata) {
-  OPENAUTO_LOG(info) << "[MediaStatusService] Metadata update"
-                     << ", track: " << metadata.track_name()
-                     << (metadata.has_artist_name() ? ", artist: " : "")
-                     << (metadata.has_artist_name() ? metadata.artist_name()
-                                                    : "")
-                     << (metadata.has_album_name() ? ", album: " : "")
-                     << (metadata.has_album_name() ? metadata.album_name() : "")
-                     << ", length: " << metadata.track_length();
   if (aa_interface_ != NULL) {
     aa_interface_->mediaMetadataUpdate(metadata);
   }
@@ -79,10 +67,6 @@ void MediaStatusService::onMetadataUpdate(
 
 void MediaStatusService::onPlaybackUpdate(
     const aasdk::proto::messages::MediaInfoChannelPlaybackData& playback) {
-  OPENAUTO_LOG(info) << "[MediaStatusService] Playback update"
-                     << ", source: " << playback.media_source()
-                     << ", state: " << playback.playback_state()
-                     << ", progress: " << playback.track_progress();
   if (aa_interface_ != NULL) {
     aa_interface_->mediaPlaybackUpdate(playback);
   }

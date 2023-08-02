@@ -60,12 +60,8 @@ void SensorService::fillFeatures(
 
 void SensorService::onChannelOpenRequest(
     const aasdk::proto::messages::ChannelOpenRequest& request) {
-  OPENAUTO_LOG(info) << "[SensorService] open request, priority: "
-                     << request.priority();
   const aasdk::proto::enums::Status::Enum status =
       aasdk::proto::enums::Status::OK;
-  OPENAUTO_LOG(info) << "[SensorService] open status: " << status;
-
   aasdk::proto::messages::ChannelOpenResponse response;
   response.set_status(status);
 
@@ -80,9 +76,6 @@ void SensorService::onChannelOpenRequest(
 
 void SensorService::onSensorStartRequest(
     const aasdk::proto::messages::SensorStartRequestMessage& request) {
-  OPENAUTO_LOG(info) << "[SensorService] sensor start request, type: "
-                     << request.sensor_type();
-
   aasdk::proto::messages::SensorStartResponseMessage response;
   response.set_status(aasdk::proto::enums::Status::OK);
 
