@@ -11,3 +11,7 @@ install(TARGETS btservice_proto DESTINATION lib)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} DESTINATION include
         FILES_MATCHING PATTERN *.h
         PATTERN CMakeFiles EXCLUDE)
+
+if(POLICY CMP0071)
+	cmake_policy(SET CMP0071 NEW)
+endif()
