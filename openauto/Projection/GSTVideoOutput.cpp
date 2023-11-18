@@ -332,6 +332,18 @@ void GSTVideoOutput::resize()
     int containerHeight = videoContainer_->height();
 
     switch(this->getVideoResolution()){
+        case aasdk::proto::enums::VideoResolution_Enum__1440p:
+            width = 1280;
+            height = 720;
+            break;
+        case aasdk::proto::enums::VideoResolution_Enum__1080pp:
+            width = 1920;
+            height = 1080;
+            break;
+        case aasdk::proto::enums::VideoResolution_Enum__108s0p_p:
+            width = 1920;
+            height = 1080;
+            break;
         case aasdk::proto::enums::VideoResolution_Enum__1080p:
             width = 1920;
             height = 1080;
@@ -340,10 +352,18 @@ void GSTVideoOutput::resize()
             width = 1280;
             height = 720;
             break;
+        case aasdk::proto::enums::VideoResolution_Enum__720p_p:
+            width = 1280;
+            height = 720;
+            break;            
         case aasdk::proto::enums::VideoResolution_Enum__480p:
             width = 800;
             height = 480;
             break;
+        case aasdk::proto::enums::VideoResolution_Enum_NONE:
+            width = 1920;
+            height = 1080;
+            break;            
     }
 
     double marginWidth = 0;
