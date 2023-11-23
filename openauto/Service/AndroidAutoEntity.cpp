@@ -244,7 +244,7 @@ void AndroidAutoEntity::onPingRequest(const aasdk::proto::messages::PingRequest&
     controlServiceChannel_->receive(this->shared_from_this());
 }
 
-void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse&)
+void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse& response)
 {
     pinger_->pong();
     controlServiceChannel_->receive(this->shared_from_this());
