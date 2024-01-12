@@ -9,6 +9,7 @@ find_path(AASDK_INCLUDE_DIR
 find_path(AASDK_PROTO_INCLUDE_DIR
     aasdk_proto/AbsoluteInputEventData.pb.h
     PATHS ${AASDK_DIR}
+    PATH_SUFFIXES build
 )
 
 find_path(AASDK_LIB_DIR
